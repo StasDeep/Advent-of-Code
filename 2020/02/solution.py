@@ -3,6 +3,13 @@ from abc import ABC, abstractmethod
 from utils import read, p1, p2
 
 
+def main():
+    lines = read()
+
+    p1(sum(LetterCountRangePolicy.is_valid_from_test_string(line) for line in lines))
+    p2(sum(XorMatchPolicy.is_valid_from_test_string(line) for line in lines))
+
+
 class BasePolicy(ABC):
 
     def __init__(self, letter, lower, upper):
@@ -35,14 +42,3 @@ class XorMatchPolicy(BasePolicy):
         first_match = pswd[self.lower - 1] == self.letter
         second_match = pswd[self.upper - 1] == self.letter
         return sum([first_match, second_match]) == 1
-
-
-def main():
-    lines = read()
-
-    p1(sum(LetterCountRangePolicy.is_valid_from_test_string(line) for line in lines))
-    p2(sum(XorMatchPolicy.is_valid_from_test_string(line) for line in lines))
-
-
-if __name__ == '__main__':
-    main()

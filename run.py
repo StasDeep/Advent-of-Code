@@ -9,7 +9,7 @@ def main():
         task_num = sys.argv[2]
     else:
         year = '2020'
-        task_num = '02'
+        task_num = '10'
 
     SolutionRunner(year, task_num).run(with_test=True)
 

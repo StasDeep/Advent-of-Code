@@ -1,8 +1,8 @@
-from utils import read
+from utils import read, p1, p2
 
 
 def main():
-    lines = read("5_1.txt")
+    lines = read()
 
     seats = []
     for line in lines:
@@ -13,13 +13,9 @@ def main():
         seat_id = row_num * 8 + col_num
         seats.append(seat_id)
 
-    print(max(seats))
+    p1(max(seats))
 
-    sset = set(seats)
-    for x in range(max(seats) + 1):
-        if x not in sset:
-            print(x)
-
-
-if __name__ == '__main__':
-    main()
+    seats = sorted(seats)
+    for s1, s2 in zip(seats, seats[1:]):
+        if s2 - s1 == 2:
+            p2(s2 - 1)

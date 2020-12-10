@@ -1,4 +1,24 @@
-from utils import read
+from utils import read, p1, p2
+
+
+def main():
+    lines = read()
+
+    p1(run(lines)[0])
+
+    for i, line in enumerate(lines):
+        if "jmp" in line or "nop" in line:
+            new_lines = lines.copy()
+            if "jmp" in line:
+                new_lines[i] = line.replace("jmp", "nop")
+            else:
+                new_lines[i] = line.replace("nop", "jmp")
+
+            acc, infinite = run(new_lines)
+
+            if not infinite:
+                p2(acc)
+                break
 
 
 def run(lines):
@@ -30,27 +50,3 @@ def run(lines):
 
     return acc, infinite
 
-
-def main():
-    lines = read("8_1.txt")
-
-    print(run(lines))
-
-    for i, line in enumerate(lines):
-        if "jmp" in line or "nop" in line:
-            new_lines = lines.copy()
-            if "jmp" in line:
-                new_lines[i] = line.replace("jmp", "nop")
-            else:
-                new_lines[i] = line.replace("nop", "jmp")
-
-            acc, infinite = run(new_lines)
-
-            if not infinite:
-                print(acc)
-
-
-
-
-if __name__ == '__main__':
-    main()
