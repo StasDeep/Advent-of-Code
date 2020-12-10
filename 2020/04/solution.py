@@ -32,7 +32,7 @@ def validate_height(val):
 
 
 def main():
-    lines = read("4_1.txt")
+    lines = read()
     passports = "\n".join(lines).split("\n\n")
 
     fields_meta = {
@@ -51,7 +51,7 @@ def main():
         if all(f in fields for f in fields_meta):
             c += 1
 
-    print(c)
+    print('Part 1 answer:', c)
 
     c = 0
     for passport in passports:
@@ -59,7 +59,7 @@ def main():
         if all(f in values and fields_meta[f]["validator"](values[f]) for f in fields_meta):
             c += 1
 
-    print(c)
+    print('Part 2 answer:', c)
 
 
 if __name__ == '__main__':

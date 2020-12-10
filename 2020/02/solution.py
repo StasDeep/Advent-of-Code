@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 
-from utils import read
+from utils import read, p1, p2
 
 
 class BasePolicy(ABC):
@@ -40,8 +40,8 @@ class XorMatchPolicy(BasePolicy):
 def main():
     lines = read()
 
-    for i, policy in enumerate([LetterCountRangePolicy, XorMatchPolicy]):
-        print(f'Part {i + 1} answer:', sum(policy.is_valid_from_test_string(line) for line in lines))
+    p1(sum(LetterCountRangePolicy.is_valid_from_test_string(line) for line in lines))
+    p2(sum(XorMatchPolicy.is_valid_from_test_string(line) for line in lines))
 
 
 if __name__ == '__main__':

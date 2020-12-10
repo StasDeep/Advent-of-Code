@@ -1,6 +1,6 @@
 from itertools import combinations
 
-from utils import read
+from utils import read, p1, p2
 
 
 def find_pair_summing_to(desired_sum, numbers):
@@ -22,7 +22,7 @@ def main():
     numbers = [int(x) for x in read()]
 
     a, b = find_pair_summing_to(2020, numbers)
-    print('Part 1 answer:', a * b)
+    p1(a * b)
 
     x, y, z = find_combination_summing_to(2020, 3, numbers)
-    print('Part 2 answer:', x * y * z)
+    p2(x * y * z)
