@@ -22,8 +22,3 @@ def main():
                 m[i] += m[plug_idx]
 
     p2(m[-1])
-
-
-
-if __name__ == '__main__':
-    main()

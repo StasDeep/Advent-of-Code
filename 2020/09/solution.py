@@ -32,4 +32,3 @@ def main(is_test: bool = False):
         if nn == s:
             p2(min(nums[i:idx]) + max(nums[i:idx]))
             break
-
