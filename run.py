@@ -8,8 +8,8 @@ def main():
         year = sys.argv[1]
         task_num = sys.argv[2]
     else:
-        year = '2015'
-        task_num = '07'
+        year = '2020'
+        task_num = '12'
 
     SolutionRunner(year, task_num).run(with_test=True)
 

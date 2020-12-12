@@ -101,7 +101,7 @@ class SolutionRunner:
             if is_test_passing:
                 return '(test: OK)'
             else:
-                return f'(expected: {repr(expected)}; actual: {repr(actual)})'
+                return f'(test results; expected: {repr(expected)}; actual: {repr(actual)})'
 
         test_answer = self.actual_answers_for_test[part_num - 1]
         if test_answer is not None:
