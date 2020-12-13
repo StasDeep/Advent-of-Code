@@ -130,7 +130,8 @@ class SolutionRunner:
         else:
             tests_passed_for_part = [
                 test_passed[part_num - 1]
-                for test_passed in self.tests_passed if test_passed[part_num - 1] is not None
+                for test_passed in self.tests_passed
+                if len(test_passed) >= part_num and test_passed[part_num - 1] is not None
             ]
             if tests_passed_for_part:
                 passed = sum(tests_passed_for_part)
