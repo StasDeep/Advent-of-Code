@@ -1,5 +1,6 @@
 import inspect
 import re
+from enum import Enum
 from importlib import import_module
 from pathlib import Path
 
@@ -26,98 +27,187 @@ def p2(*args):
 
 class SolutionRunner:
 
+    class RunModes(Enum):
+        SOLUTION_ONLY = 'solution_only'
+        TEST_ONLY = 'test_only'
+        SOLUTION_TEST = 'solution_and_test'
+
     def __init__(self, year, task_num):
         self.year = year
         self.task_num = task_num
 
-        self.solution_module = None
-        self.solve_func = None
-        self.is_test_run = False
-        self.expected_answers_for_test = []
-        self.actual_answers_for_test = [None, None]
+        self.solve_module = import_module(f'{self.year}.{self.task_num}.solution')
+        self.solve_func = vars(self.solve_module)['main']
+        self.mode = self.detect_run_mode()
 
-    def run(self, with_test=True):
-        self.solution_module = import_module(f'{self.year}.{self.task_num}.solution')
+        self.is_test_now = False
+        self.expected_answers_for_tests = []
+        self.actual_answers_for_tests = []
+        self.tests_passed = []
 
-        # Patch common functions used in solution
-        self.solution_module.__dict__['read'] = self.read
-        self.solution_module.__dict__['p1'] = self.p1
-        self.solution_module.__dict__['p2'] = self.p2
+    def run(self):
+        print(f'===== AoC-{self.year}. Task #{self.task_num} =====\n')
 
-        self.solve_func = vars(self.solution_module)['main']
-
-        print(f'AoC-{self.year}. Task #{self.task_num}')
-        # Don't do test run if it is explicitly said so
-        # or there is no input file
-        if with_test and self.get_input_lines('test') is not None:
-            self.is_test_run = True
-            try:
-                self.run_solution()
-            except Exception:
-                print('Test exited with an exception')
-            self.is_test_run = False
+        for i, test_input in enumerate(self.get_tests_inputs()):
+            self.run_test(test_input, test_num=i + 1)
 
         self.run_solution()
 
+    def detect_run_mode(self):
+        """Get run mode depending on presence of `s` or `t` argument in the solve function.
+        This is done to speed up switching between running tests and solution.
+        """
+        spec = inspect.getfullargspec(self.solve_func).args
+        if 's' in spec:
+            return self.RunModes.SOLUTION_ONLY
+        elif 't' in spec:
+            return self.RunModes.TEST_ONLY
+        else:
+            return self.RunModes.SOLUTION_TEST
+
+    def run_test(self, test_input, test_num):
+        if self.mode == self.RunModes.SOLUTION_ONLY:
+            return
+
+        self.is_test_now = True
+
+        try:
+            self._run_solve_func({
+                'read': self.read_mock(test_input),
+                'p1': lambda answer: self.print_mock(answer, part_num=1, test_num=test_num),
+                'p2': lambda answer: self.print_mock(answer, part_num=2, test_num=test_num),
+            })
+        except Exception:
+            # Re-raise an exception when running tests only
+            if self.mode == self.RunModes.TEST_ONLY:
+                raise
+
+            # Otherwise, just print it
+            print(f'Test #{test_num} raised an exception')
+
+        self.check_test_results(test_num)
+
+        self.is_test_now = False
+
     def run_solution(self):
-        if 'is_test' in inspect.getfullargspec(self.solve_func).args:
-            self.solve_func(self.is_test_run)
+        if self.mode == self.RunModes.TEST_ONLY:
+            return
+
+        self._run_solve_func({
+            'read': self.read_mock(self.get_input_lines('input.txt')),
+            'p1': lambda answer: self.print_mock(answer, part_num=1, test_num=None),
+            'p2': lambda answer: self.print_mock(answer, part_num=2, test_num=None),
+        })
+
+    def _run_solve_func(self, patches=None):
+        if patches:
+            for name, value in patches.items():
+                self.solve_module.__dict__[name] = value
+
+        kwargs = {
+            'is_test': self.is_test_now,
+            's': None,
+            't': None,
+        }
+        spec = inspect.getfullargspec(self.solve_func).args
+        kwargs = {k: v for k, v in kwargs.items() if k in spec}
+        self.solve_func(**kwargs)
+
+    @property
+    def verbose(self):
+        if self.is_test_now:
+            # Print test answer separately only if running test-only mode
+            return self.mode == self.RunModes.TEST_ONLY
+
+        return True
+
+    def read_mock(self, return_value):
+        return lambda input_type=str: list(map(input_type, return_value))
+
+    def print_mock(self, answer, part_num, test_num):
+        if self.is_test_now:
+            self.actual_answers_for_tests[test_num - 1][part_num - 1] = answer
         else:
-            self.solve_func()
-
-    def read(self, input_type=str):
-        lines = self.get_input_lines(use_test=self.is_test_run)
-
-        if self.is_test_run:
-            # Find expected answers for test
-            answers = re.split('\n=+\n', '\n'.join(lines))[-1].strip().split('\n')
-
-            # If there are expected answers, remove them from input
-            if len(answers) != len(lines):
-                self.expected_answers_for_test = answers
-
-                lines = lines[:-len(self.expected_answers_for_test) - 1]
-
-        return list(map(input_type, lines))
-
-    def p1(self, answer):
-        self.check_and_print_answer(answer, 1)
-
-    def p2(self, answer):
-        self.check_and_print_answer(answer, 2)
-
-    def check_and_print_answer(self, answer, part_num):
-        if self.is_test_run:
-            self.actual_answers_for_test[part_num - 1] = answer
-        else:
-            print(f'Part {part_num} answer:', answer, self.get_extra_info(part_num))
-
-    def get_extra_info(self, part_num):
-        if self.expected_answers_for_test and len(self.expected_answers_for_test) >= part_num:
-            actual = str(self.actual_answers_for_test[part_num - 1])
-            expected = str(self.expected_answers_for_test[part_num - 1])
-            is_test_passing = actual == expected
-
-            if is_test_passing:
-                return '(test: OK)'
+            tests_passed_for_part = [
+                test_passed[part_num - 1]
+                for test_passed in self.tests_passed if test_passed[part_num - 1] is not None
+            ]
+            if tests_passed_for_part:
+                passed = sum(tests_passed_for_part)
+                info = f'({passed}/{len(tests_passed_for_part)} tests passed)'
             else:
-                return f'(test results; expected: {repr(expected)}; actual: {repr(actual)})'
+                info = ''
 
-        test_answer = self.actual_answers_for_test[part_num - 1]
-        if test_answer is not None:
-            return f'(test answer: {test_answer})'
+            print(f'Part {part_num} answer:', answer, info)
 
-        return ''
+    def check_test_results(self, test_num):
+        actual = self.actual_answers_for_tests[test_num - 1]
+        expected = self.expected_answers_for_tests[test_num - 1]
+        for i, (act, exp) in enumerate(zip(actual, expected)):
+            if act is not None and exp is not None:
+                act = str(act)
+                exp = str(exp)
+                is_test_passing = act == exp
 
-    def get_input_lines(self, use_test):
-        p = Path(self.solution_module.__file__)
+                if is_test_passing:
+                    self.tests_passed[test_num - 1][i] = True
+                    if self.verbose:
+                        extra_info = '(OK)'
+                    else:
+                        continue
+                else:
+                    self.tests_passed[test_num - 1][i] = False
+                    extra_info = f'(expected: {exp})'
+            elif act is not None and self.verbose:
+                extra_info = '(expected not provided)'
+            else:
+                continue
 
-        if use_test:
-            input_file = p.parent / 'input_test.txt'
-        else:
-            input_file = p.parent / 'input.txt'
+            print(f'Test #{test_num}. Part {i + 1} answer: {act} {extra_info}')
 
-        if input_file.exists():
-            return _read_input(input_file)
+    def get_input_lines(self, name):
+        p = Path(self.solve_module.__file__).parent / name
+        if p.exists():
+            return _read_input(p)
 
         return None
+
+    def get_tests_inputs(self):
+        lines = self.get_input_lines('input_test.txt')
+
+        if lines is None:
+            return []
+
+        inputs_raw = re.split(r'\n_+\n', '\n'.join(lines))
+
+        inputs = []
+        for input_text in inputs_raw:
+            lines, answers = self.get_test_lines_and_answers(input_text)
+            self.expected_answers_for_tests.append(answers)
+            inputs.append(lines)
+
+        max_answers_for_test = max(len(test_answers) for test_answers in self.expected_answers_for_tests)
+        self.expected_answers_for_tests = [
+            answers + [None] * (max_answers_for_test - len(answers))
+            for answers in self.expected_answers_for_tests
+        ]
+
+        self.actual_answers_for_tests = [[None] * max_answers_for_test for _ in inputs]
+        self.tests_passed = [[None] * max_answers_for_test for _ in inputs]
+
+        return inputs
+
+    def get_test_lines_and_answers(self, input_text):
+        lines = input_text.split('\n')
+
+        # Find expected answers for test
+        answers = re.split(r'\n=+\n', '\n'.join(lines))[-1].split('\n')
+
+        # If there are expected answers, remove them from input
+        if len(answers) != len(lines):
+            answers = [answer if answer != '' else None for answer in answers]
+            lines = lines[:-len(answers) - 1]
+        else:
+            answers = []
+
+        return lines, answers
