@@ -19,3 +19,4 @@ def main():
     for s1, s2 in zip(seats, seats[1:]):
         if s2 - s1 == 2:
             p2(s2 - 1)
+            break
