@@ -30,7 +30,7 @@ def main():
         if num is None or num == multi:
             continue
 
-        for x in range(1, num):
+        for x in count(0):
             if (x * multi + adder) % num == (num - i) % num:
                 break
 
@@ -46,7 +46,8 @@ def main():
 
         # For the AoC task input which contains only prime numbers in its input,
         # using just `multi * num` is enough. However, in a more general case,
-        # least common multiple should be used
+        # least common multiple should be used (test case: `8,x,14,x,10`),
+        # otherwise the "jumps" will be too long, skipping possibly correct `x` values
         multi = multi * num // math.gcd(multi, num)
 
     p2(adder)
