@@ -4,6 +4,8 @@ from enum import Enum
 from importlib import import_module
 from pathlib import Path
 
+import pyperclip
+
 
 def read(input_type=str):
     frm = inspect.stack()[1]
@@ -141,6 +143,7 @@ class SolutionRunner:
                 info = ''
 
             print(f'Part {part_num} answer:', answer, info)
+            pyperclip.copy(str(answer))
 
     def check_test_results(self, test_num):
         actual = self.actual_answers_for_tests[test_num - 1]
