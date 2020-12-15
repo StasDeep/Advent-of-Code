@@ -126,7 +126,8 @@ class SolutionRunner:
 
     def print_mock(self, answer, part_num, test_num):
         if self.is_test_now:
-            self.actual_answers_for_tests[test_num - 1][part_num - 1] = answer
+            if len(self.actual_answers_for_tests[test_num - 1]) >= part_num:
+                self.actual_answers_for_tests[test_num - 1][part_num - 1] = answer
         else:
             tests_passed_for_part = [
                 test_passed[part_num - 1]
