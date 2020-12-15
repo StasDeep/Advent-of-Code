@@ -6,6 +6,8 @@ from pathlib import Path
 
 import pyperclip
 
+from download_inp import download_input
+
 
 def read(input_type=str):
     frm = inspect.stack()[1]
@@ -95,6 +97,9 @@ class SolutionRunner:
         if self.mode == self.RunModes.TEST_ONLY:
             return
 
+        if not self.get_path('input.txt').exists():
+            download_input(self.year, self.task_num)
+
         self._run_solve_func({
             'read': self.read_mock(self.get_input_lines('input.txt')),
             'p1': lambda answer: self.print_mock(answer, part_num=1, test_num=None),
@@ -170,8 +175,11 @@ class SolutionRunner:
 
             print(f'Test #{test_num}. Part {i + 1} answer: {act} {extra_info}')
 
+    def get_path(self, name):
+        return Path(self.solve_module.__file__).parent / name
+
     def get_input_lines(self, name):
-        p = Path(self.solve_module.__file__).parent / name
+        p = self.get_path(name)
         if p.exists():
             return _read_input(p)
 
