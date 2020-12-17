@@ -1,4 +1,3 @@
-from copy import deepcopy
 from itertools import product
 
 import numpy as np
@@ -40,53 +39,60 @@ class ConwayCubes:
 
     def get_next_state(self, prev_state):
         prev_state = np.pad(prev_state, pad_width=1, constant_values=False)
-        next_state = deepcopy(prev_state)
+        active_neighbors = np.zeros(shape=prev_state.shape)
 
         for idx in np.ndindex(prev_state.shape):
-            c = 0
+            if not prev_state[idx]:
+                continue
+
             for offset in product([-1, 0, 1], repeat=self.dims):
                 if all(i == 0 for i in offset):
                     continue
 
                 oidx = tuple(np.array(idx) + np.array(offset))
 
+                # Ignore out-of-bound indices
                 if not all(0 <= oidx[i] < prev_state.shape[i] for i in range(self.dims)):
                     continue
 
-                if prev_state[oidx]:
-                    c += 1
+                active_neighbors[oidx] += 1
 
-            was_act = prev_state[idx]
-            if (was_act and c == 2 or c == 3) or (not was_act and c == 3):
-                next_state[idx] = True
+        # Next state is active if:
+        # - was active in previous state and had 2 or 3 active neighbors
+        # - was inactive in previous state and exactly 3 active neighbors
+        return (
+            (prev_state & ((active_neighbors == 3) | (active_neighbors == 2)))
+            |
+            (~prev_state & (active_neighbors == 3))
+        )
+
+    def trim_state(self, state):
+        for d in range(len(state.shape)):
+            slice_start = self.get_empty_edge_size(state, d)
+            slice_end = state.shape[d] - self.get_empty_edge_size(state, d, reverse=True)
+            state = slice_dim(state, d, slice_=slice(slice_start, slice_end))
+
+        return state
+
+    def get_empty_edge_size(self, state, dimension, reverse=False):
+        it = range(state.shape[dimension])
+        if reverse:
+            it = reversed(it)
+
+        c = 0
+        for i in it:
+            if not np.any(slice_dim(state, dimension, slice_=i)):
+                c += 1
             else:
-                next_state[idx] = False
-
-        return next_state
-
-    def trim_state(self, next_state):
-        slices = []
-        for d in range(len(next_state.shape)):
-            slice_start = 0
-            slice_end = next_state.shape[d]
-            for i in range(next_state.shape[d]):
-                idx = tuple([slice(None) if _d != d else i for _d in range(len(next_state.shape))])
-                if not np.any(next_state[idx]):
-                    slice_start += 1
-                else:
-                    break
-            for i in reversed(range(next_state.shape[d])):
-                idx = tuple([slice(None) if _d != d else i for _d in range(len(next_state.shape))])
-                if not np.any(next_state[idx]):
-                    slice_end -= 1
-                else:
-                    break
-
-            slices.append(slice(slice_start, slice_end))
-
-        return next_state[tuple(slices)]
+                break
+        return c
 
     def print_state(self, state):
         for i in range(state.shape[0]):
             print("\n".join("".join("#" if s else "." for s in line) for line in state[i]))
             print()
+
+
+def slice_dim(arr, dim, slice_):
+    idx = [slice(None)] * dim + [slice_]
+    return arr[tuple(idx)]
