@@ -1,4 +1,5 @@
 from itertools import product
+from string import ascii_lowercase
 
 import numpy as np
 
@@ -88,8 +89,12 @@ class ConwayCubes:
         return c
 
     def print_state(self, state):
-        for i in range(state.shape[0]):
-            print("\n".join("".join("#" if s else "." for s in line) for line in state[i]))
+        non_xy_axes_names = ["z"] + list(reversed(ascii_lowercase[:-3]))
+        non_xy_axes_sizes = [state.shape[d] for d in range(len(state.shape) - 2)]
+        offsets = [size // 2 for size in non_xy_axes_sizes]
+        for idx in product(*map(range, non_xy_axes_sizes)):
+            print(", ".join(f"{non_xy_axes_names[i]}={idx[i] - offsets[i]}" for i, _ in enumerate(idx)))
+            print("\n".join("".join("#" if s else "." for s in line) for line in state[idx]))
             print()
 
 
