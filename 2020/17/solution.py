@@ -7,9 +7,9 @@ from utils import read, p1, p2
 
 
 def main():
-    arr = np.array([list(line) for line in read()]) == "#"
-    p1(ConwayCubes(arr, 3).run(6).active_num)
-    p2(ConwayCubes(arr, 4).run(6).active_num)
+    init_state = np.array([list(line) for line in read()]) == "#"
+    p1(ConwayCubes(init_state, dimensions=3).run(num_cycles=6).active_num)
+    p2(ConwayCubes(init_state, dimensions=4).run(num_cycles=6).active_num)
 
 
 class ConwayCubes:
@@ -39,7 +39,7 @@ class ConwayCubes:
         return np.sum(self.state)
 
     def get_next_state(self, prev_state):
-        prev_state = np.pad(prev_state, 1, constant_values=False)
+        prev_state = np.pad(prev_state, pad_width=1, constant_values=False)
         next_state = deepcopy(prev_state)
 
         for idx in np.ndindex(prev_state.shape):
