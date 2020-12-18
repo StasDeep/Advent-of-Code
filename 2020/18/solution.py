@@ -1,4 +1,3 @@
-import math
 from abc import ABC
 
 from utils import read, p1, p2
@@ -22,9 +21,9 @@ class Evaluator(ABC):
         stack = []
         for i, c in enumerate(line):
             if c == "(":
-                stack.append((i, c))
+                stack.append(i)
             elif c == ")":
-                start_i, _ = stack.pop()
+                start_i = stack.pop()
                 if not stack:
                     top_level_brackets.append((start_i, i))
 
@@ -65,4 +64,5 @@ class AddBeforeMultEvaluator(Evaluator):
                     line = line.replace(" ".join([oper1, op, oper2]), str(int(oper1) + int(oper2)), 1)
                     break
 
-        return math.prod([int(z) for z in line.split()[::2]])
+        # Only multiplications left
+        return eval(line)
