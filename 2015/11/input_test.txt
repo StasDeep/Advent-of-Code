@@ -1,0 +1,7 @@
+abcdefgh
+====
+abcdffaa
+_____
+ghijklmn
+====
+ghjaabcc
