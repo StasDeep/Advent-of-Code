@@ -80,18 +80,8 @@ def main():
 
 def orientations(arr):
     for rot in range(4):
-        for flip in range(4):
+        for flip in range(2):
             new_arr = np.rot90(arr, k=rot)
-            new_arr = flip_arr(new_arr, flip)
+            if flip:
+                new_arr = np.flip(new_arr, 0)
             yield new_arr
-
-
-def flip_arr(arr, num):
-    if num == 1:
-        return np.flip(arr, 0)
-    elif num == 2:
-        return np.flip(arr, 1)
-    elif num == 3:
-        return np.flip(arr)
-    else:
-        return arr
