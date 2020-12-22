@@ -55,14 +55,12 @@ class ClassicalCombat(BaseCombatGame):
 class RecursiveCombat(BaseCombatGame):
 
     def play(self):
-        seen1 = set()
-        seen2 = set()
+        seen = set()
         while self.deck1 and self.deck2:
-            if tuple(self.deck1) in seen1 and tuple(self.deck2) in seen2:
-                return self
+            if (tuple(self.deck1), tuple(self.deck2)) in seen:
+                break
 
-            seen1.add(tuple(self.deck1))
-            seen2.add(tuple(self.deck2))
+            seen.add((tuple(self.deck1), tuple(self.deck2)))
 
             c1, c2 = self.draw_cards()
 
