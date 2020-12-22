@@ -19,9 +19,7 @@ class BaseCombatGame(ABC):
         self.deck2 = deck2.copy()
 
     def draw_cards(self):
-        c1, *self.deck1 = self.deck1
-        c2, *self.deck2 = self.deck2
-        return c1, c2
+        return self.deck1.pop(0), self.deck2.pop(0)
 
     def cards_to_round_winner(self, c1, c2, round_winner):
         if int(round_winner) == 0:
