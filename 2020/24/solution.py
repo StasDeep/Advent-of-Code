@@ -1,10 +1,8 @@
 import re
-from copy import deepcopy
 
 import numpy as np
 
 from utils import read, p1, p2
-
 
 moves = {
     "e": (0, -1),
@@ -19,6 +17,8 @@ moves = {
 def main(s):
     lines = read()
 
+    # This size should be enough for the size of task input. This is just faster
+    # to implement than trimming/appending rows
     arr = np.zeros((1400, 1400), dtype=bool)
     for line in lines:
         instructions = re.findall("(e|se|sw|ne|nw|w)", line)
