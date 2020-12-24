@@ -1,59 +1,41 @@
+from itertools import count
+
 from utils import read, p1, p2
 
 
-def main(t):
+def main():
     cups = [int(c) for c in read()[0]]
 
-    # cups_after_100 = run(cups, 100)
-    # idx = cups_after_100.index(1)
-    # p1("".join(str(x) for x in cups_after_100[idx+1:] + cups_after_100[:idx]))
+    after_100 = run(cups, 100)
+    p1("".join(map(str, after_100[:-1])))
 
-    # new_cups = cups + list(range(len(cups) + 1, 1000000 + 1))
-    new_cups = cups + list(range(len(cups) + 1, 22 + 1))
-    cups_after_10m = run(new_cups, 220)
-    idx = cups_after_10m.index(1)
-    p2(cups_after_10m[(idx + 1) % len(new_cups)] * cups_after_10m[(idx + 2) % len(new_cups)])
+    # million_cups = cups + list(range(len(cups) + 1, 1000000 + 1))
+    # after_10m = run(million_cups, 10000000)
+    # p2(after_10m[0] * after_10m[1])
 
 
 def run(cups, num_iterations):
-    cups = cups.copy()
-    cur_idx = 0
-    for move in range(num_iterations):
-        # print(move)
-        # if move % 100 == 0:
-        #     print(move)
-        pick_cups = [cups[(cur_idx + i + 1) % len(cups)] for i in range(3)]
-        dest = cups[cur_idx]
-        while True:
-            dest = dest - 1
-            if dest < 1:
-                dest = len(cups) - dest
+    d = {c1: c2 for c1, c2 in zip(cups, cups[1:] + [cups[0]])}
+    cur = cups[0]
+    for x in range(num_iterations):
+        c1 = d[cur]
+        c2 = d[c1]
+        c3 = d[c2]
+        pickup = [c1, c2, c3]
+        dest = next(
+            cup for i in count(1)
+            if (cup := cur - i if (cur - i > 0) else len(cups) + (cur - i)) not in pickup
+        )
 
-            if dest not in pick_cups:
-                break
+        d[cur], d[c3], d[dest] = d[c3], d[dest], d[cur]
 
-        print(f"-- move {move + 1} --")
-        print(f"cups: {' '.join(str(cup) if cup != cups[cur_idx] else f'({cup})' for cup in cups)}")
-        # print(f"current: {cups[cur_idx]}")
-        print(f"pick up: {', '.join(map(str, pick_cups))}")
-        print(f"dest: {dest}")
-        print()
+        cur = d[cur]
 
-        dest_idx = cups.index(dest)
-        for i, pickup_cup in enumerate(pick_cups):
-            old_idx = (cur_idx + 1) % len(cups)
-            del cups[old_idx]
-            if old_idx <= dest_idx:
-                dest_idx -= 1
-            if old_idx <= cur_idx:
-                cur_idx -= 1
-            new_idx = (dest_idx + i + 1) % len(cups)
-            if new_idx <= dest_idx:
-                dest_idx += 1
-            if new_idx <= cur_idx:
-                cur_idx += 1
-            cups.insert(new_idx, pickup_cup)
-
-        cur_idx = (cur_idx + 1) % len(cups)
-
-    return cups
+    result = []
+    c = 1
+    while True:
+        result.append(d[c])
+        c = d[c]
+        if c == 1:
+            break
+    return result
