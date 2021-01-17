@@ -14,18 +14,20 @@ def main():
 
 class ConwayCubes:
 
-    def __init__(self, init_state: np.ndarray, dimensions: int):
+    def __init__(self, init_state: np.ndarray, dimensions: int, pad=True):
         shape = init_state.shape
         new_shape = [1] * (dimensions - len(shape)) + list(shape)
         self.init_state = np.reshape(init_state, tuple(new_shape))
         self.state = self.init_state
         self.dims = dimensions
+        self.pad = pad
 
     def run(self, num_cycles: int):
         prev_state = self.state
         for _cycle_num in range(num_cycles):
             next_state = self.get_next_state(prev_state)
-            next_state = self.trim_state(next_state)
+            if self.pad:
+                next_state = self.trim_state(next_state)
             prev_state = next_state
             print(f"{self.dims}-D cycle #{_cycle_num + 1} finished.")
             # self.print_state(next_state)
@@ -39,7 +41,8 @@ class ConwayCubes:
         return np.sum(self.state)
 
     def get_next_state(self, prev_state):
-        prev_state = np.pad(prev_state, pad_width=1, constant_values=False)
+        if self.pad:
+            prev_state = np.pad(prev_state, pad_width=1, constant_values=False)
         active_neighbors = np.zeros(shape=prev_state.shape)
 
         for idx in np.ndindex(prev_state.shape):
