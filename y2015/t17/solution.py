@@ -1,6 +1,3 @@
-import re
-from collections import defaultdict
-
 from utils import read, p1, p2
 
 
