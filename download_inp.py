@@ -6,7 +6,7 @@ import requests
 
 
 def download_input(year, task):
-    p = Path(str(year)) / str(task) / 'input.txt'
+    p = Path(f"y{year}") / f"t{task}" / 'input.txt'
 
     if not p.parent.exists():
         makedirs(p.parent.as_posix(), exist_ok=True)
