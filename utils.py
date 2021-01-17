@@ -40,7 +40,7 @@ class SolutionRunner:
         self.year = year
         self.task_num = task_num
 
-        self.solve_module = import_module(f'{self.year}.{self.task_num}.solution')
+        self.solve_module = import_module(f'y{self.year}.t{self.task_num}.solution')
         self.solve_func = vars(self.solve_module)['main']
         self.mode = self.detect_run_mode()
 
