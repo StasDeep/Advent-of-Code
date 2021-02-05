@@ -31,26 +31,41 @@ def main():
 class Fight:
 
     fields = ["player_hp", "player_mana", "boss_hp", "boss_dmg", "spells", "active_spells"]
+    cache = {}
 
     def __init__(self, state: dict, spell_to_use):
         self.state = state
         self.spell = spell_to_use
 
     def get_best_moves(self):
+        state_serialized = self.serialize()
+
+        if state_serialized in self.cache:
+            return self.cache[state_serialized]
+
         result = self.simulate()
 
-        if isinstance(result, list):
+        if isinstance(result, list) or result is None:
+            self.cache[state_serialized] = result
             return result
-
-        if result is None:
-            return None
 
         perfect_next_moves = self.perfect_moves(self.state)[0]
 
         if perfect_next_moves is None:
+            self.cache[state_serialized] = None
             return None
 
-        return [self.spell] + perfect_next_moves
+        moves = [self.spell] + perfect_next_moves
+
+        self.cache[state_serialized] = moves
+        return moves
+
+    def serialize(self):
+        spells = [self.state["active_spells"].get(spell, 0) for spell in self.state["spells"]]
+        return tuple(
+            [self.spell, self.state["player_hp"], self.state["player_mana"], self.state["boss_hp"]]
+            + spells
+        )
 
     def simulate(self):
         # Player's turn
@@ -163,6 +178,9 @@ class Fight:
 
 
 class HardFight(Fight):
+
+    # Redefine to have separate cache
+    cache = {}
 
     def simulate(self):
         self.state["player_hp"] -= 1
