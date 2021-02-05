@@ -24,6 +24,7 @@ def main():
     p1(cost)
 
     moves, cost = HardFight.perfect_moves(init_state, start=True)
+    # ['Shield', 'Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Recharge', 'Poison', 'Shield', 'Magic Missile', 'Poison', 'Magic Missile']
     p2(cost)
 
 
@@ -54,9 +55,6 @@ class Fight:
     def simulate(self):
         # Player's turn
         self.apply_effects()
-
-        if self.is_player_dead():
-            return None
 
         if self.is_boss_dead():
             # If boss dies before the spell is applied, best move is doing nothing
@@ -166,9 +164,13 @@ class Fight:
 
 class HardFight(Fight):
 
-    def apply_effects(self):
+    def simulate(self):
         self.state["player_hp"] -= 1
-        super().apply_effects()
+
+        if self.is_player_dead():
+            return None
+
+        return super().simulate()
 
 
 class Simulation(Fight):
