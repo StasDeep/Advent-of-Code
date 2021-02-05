@@ -1,47 +1,30 @@
 from copy import deepcopy
 
-from utils import read, p1, p2
+from utils import p1, p2
 
 
 def main():
-    spells = {
-        "Magic Missile": {"cost": 53, "effect": {"damage": 4}, "timer": 0},
-        "Drain": {"cost": 73, "effect": {"damage": 2, "heal": 2}, "timer": 0},
-        "Shield": {"cost": 113, "effect": {"armor": 7}, "timer": 6},
-        "Poison": {"cost": 173, "effect": {"damage": 3}, "timer": 6},
-        "Recharge": {"cost": 229, "effect": {"mana": 101}, "timer": 5},
-    }
-
-    # moves, cost = Fight.perfect_moves({
-    #     "player_hp": 50,
-    #     "player_mana": 500,
-    #     "boss_hp": 71,
-    #     "boss_dmg": 10,
-    #     "spells": spells,
-    #     "active_spells": {},
-    # }, start=True)
-    # # ['Poison', 'Recharge', 'Shield', 'Poison', 'Recharge', 'Shield', 'Poison', 'Recharge', 'Shield', 'Magic Missile', 'Poison', 'Magic Missile']
-    # p1(cost)
-
-    moves, cost = HardFight.perfect_moves({
+    init_state = {
         "player_hp": 50,
         "player_mana": 500,
         "boss_hp": 71,
         "boss_dmg": 10,
-        "spells": spells,
+        "spells": {
+            "Magic Missile": {"cost": 53, "effect": {"damage": 4}, "timer": 0},
+            "Drain": {"cost": 73, "effect": {"damage": 2, "heal": 2}, "timer": 0},
+            "Shield": {"cost": 113, "effect": {"armor": 7}, "timer": 6},
+            "Poison": {"cost": 173, "effect": {"damage": 3}, "timer": 6},
+            "Recharge": {"cost": 229, "effect": {"mana": 101}, "timer": 5},
+        },
         "active_spells": {},
-    }, start=True)
-    p2(cost)
+    }
 
-    # Simulation({
-    #     "player_hp": 50,
-    #     "player_mana": 500,
-    #     "boss_hp": 71,
-    #     "boss_dmg": 10,
-    #     "spells": spells,
-    #     "active_spells": {},
-    # }, ['Poison', 'Recharge', 'Shield', 'Poison', 'Recharge', 'Shield', 'Poison', 'Recharge', 'Shield', 'Magic Missile',
-    #     'Poison', 'Magic Missile']).simulate_all()
+    moves, cost = Fight.perfect_moves(init_state, start=True)
+    # ['Poison', 'Recharge', 'Shield', 'Poison', 'Recharge', 'Shield', 'Poison', 'Recharge', 'Shield', 'Magic Missile', 'Poison', 'Magic Missile']
+    p1(cost)
+
+    moves, cost = HardFight.perfect_moves(init_state, start=True)
+    p2(cost)
 
 
 class Fight:
@@ -72,8 +55,8 @@ class Fight:
         # Player's turn
         self.apply_effects()
 
-        # if self.is_player_dead():
-        #     return None
+        if self.is_player_dead():
+            return None
 
         if self.is_boss_dead():
             # If boss dies before the spell is applied, best move is doing nothing
@@ -96,8 +79,8 @@ class Fight:
 
         self.boss_moves()
 
-        # if self.is_player_dead():
-        #     return None
+        if self.is_player_dead():
+            return None
 
         return "continue playing"
 
