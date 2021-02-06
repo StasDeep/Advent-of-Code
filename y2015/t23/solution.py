@@ -4,15 +4,14 @@ from utils import p1, p2, read
 def main():
     lines = read()
 
-    p1(simulate(lines, {"a": 0, "b": 0})["b"])
-    p2(simulate(lines, {"a": 1, "b": 0})["b"])
+    p1(execute(lines, {"a": 0, "b": 0})["b"])
+    p2(execute(lines, {"a": 1, "b": 0})["b"])
 
 
-def simulate(lines, env):
+def execute(lines, env):
     cur_idx = 0
     while cur_idx < len(lines):
-        instruction = lines[cur_idx]
-        cmd, arg, *rest = instruction.split()
+        cmd, arg, *rest = lines[cur_idx].split()
         arg = arg.strip(",")
         if cmd == "hlf":
             env[arg] = env[arg] // 2
