@@ -13,7 +13,7 @@ def download_input(year, task):
 
     with p.open('w') as fh:
         resp = requests.get(
-            f'https://adventofcode.com/{year}/day/{task}/input',
+            f'https://adventofcode.com/{year}/day/{task.lstrip("0")}/input',
             cookies={'session': getenv('AOC_COOKIE')}
         )
         fh.write(resp.text)
