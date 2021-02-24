@@ -1,0 +1,15 @@
+abba[mnop]qrst
+====
+1
+____
+abcd[bddb]xyyx
+====
+0
+____
+aaaa[qwer]tyui
+====
+0
+______
+ioxxoj[asdfgh]zxcvbn
+=====
+1
