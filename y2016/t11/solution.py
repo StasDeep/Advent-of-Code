@@ -1,4 +1,5 @@
 import re
+from collections import Counter
 from copy import copy
 from dataclasses import dataclass
 from functools import total_ordering, lru_cache
@@ -8,7 +9,7 @@ from typing import List, Iterable
 from utils import read, p1, p2
 
 
-def main(t):
+def main():
     lines = read()
 
     facility = Facility()
@@ -18,16 +19,16 @@ def main(t):
 
     p1(facility.find_best_moves_num())
 
-    # new_parts = [
-    #     Generator('elerium'),
-    #     Microchip('elerium'),
-    #     Generator('dilithium'),
-    #     Microchip('dilithium'),
-    # ]
-    # facility.floors[0].parts.extend(new_parts)
-    # facility._all_items.extend(new_parts)
-    # facility._all_items.sort()
-    # p2(facility.find_best_moves_num())
+    new_parts = [
+        Generator('elerium'),
+        Microchip('elerium'),
+        Generator('dilithium'),
+        Microchip('dilithium'),
+    ]
+    facility.floors[0].parts.extend(new_parts)
+    facility._all_items.extend(new_parts)
+    facility._all_items.sort()
+    p2(facility.find_best_moves_num())
 
 
 def pair_part_from_string(text):
@@ -131,17 +132,20 @@ class Facility:
     @property
     @lru_cache
     def memo_state(self):
-        # return self.state_str
         i = 0
         names = {}
         s = f'{self.elevator_floor},'
         for floor in self.floors:
-            for part in sorted(floor.parts, key=lambda x: names.get(x.elem, 1000)):
+            str_parts = []
+
+            order = [x[0] for x in Counter([x.elem for x in floor.parts]).most_common()]
+
+            for part in sorted(floor.parts, key=lambda x: order.index(x.elem)):
                 if part.elem not in names:
                     names[part.elem] = i
                     i += 1
-                s += f'{names[part.elem]}{part.__class__.__name__[0]}'
-            s += '|'
+                str_parts.append(f'{names[part.elem]}{part.__class__.__name__[0]}')
+            s += ''.join(sorted(str_parts)) + '|'
         return s
 
     def print_state(self):
