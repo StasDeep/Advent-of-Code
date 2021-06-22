@@ -15,12 +15,7 @@ def get_next_row(row):
 
     new_row = []
     for left, center, right in zip(ext_row, ext_row[1:], ext_row[2:]):
-        if (
-            (not left and not center and right)
-            or (not right and not center and left)
-            or (not left and center and right)
-            or (not right and center and left)
-        ):
+        if left ^ right:
             new_row.append(0)
         else:
             new_row.append(1)
