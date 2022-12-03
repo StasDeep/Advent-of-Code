@@ -9,7 +9,10 @@ import pyperclip
 from download_inp import download_input
 
 
-def read(input_type=str):
+def read(input_type=str, group=False):
+    if group:
+        print('WARNING: `group` is only implemented for run using `run.py`')
+
     frm = inspect.stack()[1]
     mod = inspect.getmodule(frm[0])
 
@@ -129,7 +132,14 @@ class SolutionRunner:
         return True
 
     def read_mock(self, return_value):
-        return lambda input_type=str: list(map(input_type, return_value))
+        def _read(input_type: type = str, group=False):
+            if group:
+                result = [[input_type(x) for x in group.split('\n')] for group in '\n'.join(return_value).split('\n\n')]
+            else:
+                result = list(map(input_type, return_value))
+            return result
+
+        return _read
 
     def print_mock(self, answer, part_num, test_num):
         if self.is_test_now:
