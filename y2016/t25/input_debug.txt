@@ -1,0 +1,37 @@
+// d = a = 2572 + a, b = 0, c = 0
+cpy a d
+cpy 4 c
+cpy 643 b
+inc d
+dec b
+jnz b -2
+dec c
+jnz c -5
+cpy d a
+
+// b = a, a = 0
+jnz 0 0
+cpy a b
+cpy 0 a
+
+// a = b / 2, c = 2 - b % 2, b = 2
+cpy 2 c
+jnz b 2
+jnz 1 6    // jump to B
+dec b
+dec c
+jnz c -4   // jump to C
+inc a
+jnz 1 -7   // jump to D
+cpy 2 b
+
+// if c == 2: out 0 else out 1
+jnz c 2
+jnz 1 4    // jump to F
+dec b
+dec c
+jnz 1 -4   // jump to G
+jnz 0 0
+out b
+jnz a -19  // jump to E
+jnz 1 -21  // jump to A
