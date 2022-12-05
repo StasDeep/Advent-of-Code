@@ -261,7 +261,7 @@ class SolutionRunner:
         return lines, answers
 
     def is_autosubmit_allowed(self, part_num):
-        """Allow autosubmit if there's an autosubmit "flag" or the task is today, unless there's a _part*_solved file"""
+        """Allow autosubmit, unless there's a _part*_solved file or no_autosubmit flag"""
         spec = inspect.getfullargspec(self.solve_func).args
         if self.get_path(f'_part{part_num}_solved').exists():
             return False
@@ -270,9 +270,10 @@ class SolutionRunner:
         if 'no_autosubmit' in spec:
             return False
 
-        is_today = datetime.strptime(f'{self.year}/12/{self.task_num}', '%Y/%m/%d').date() == datetime.now().date()
-
-        return is_today
+        return True
+        # is_today = datetime.strptime(f'{self.year}/12/{self.task_num}', '%Y/%m/%d').date() == datetime.now().date()
+        #
+        # return is_today
 
     def submit_answer(self, part_num):
         answer = self.run_results['parts'][part_num]['solution']['answer']
