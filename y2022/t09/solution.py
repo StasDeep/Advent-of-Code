@@ -18,15 +18,16 @@ def main():
                     head = coords[i]
                     tail = coords[i+1]
                     diff = head - tail
+                    x_step = (-1 if tail.real > head.real else 1)
+                    y_step = (-1j if tail.imag > head.imag else 1j)
                     # Check if head and tail are in the same column/row
                     if 0 in [diff.real, diff.imag]:
                         if abs(diff.real) > 1:
-                            coords[i+1] += (-1 if tail.real > head.real else 1)
+                            coords[i+1] += x_step
                         elif abs(diff.imag) > 1:
-                            coords[i+1] += (-1j if tail.imag > head.imag else 1j)
+                            coords[i+1] += y_step
                     elif abs(diff.real) > 1 or abs(diff.imag) > 1:
-                        coords[i+1] += (-1 if tail.real > head.real else 1)
-                        coords[i+1] += (-1j if tail.imag > head.imag else 1j)
+                        coords[i+1] += x_step + y_step
 
                 d[coords[-1]] = True
 
