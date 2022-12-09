@@ -1,6 +1,7 @@
 from utils import read, p1, p2
 
-DIRS = {'R': [0, 1], 'L': [0, -1], 'U': [-1, 0], 'D': [1, 0]}
+# Use complex numbers as 2d coordinates
+DIRS = {"U": +1j, "D": -1j, "L": -1, "R": +1}
 
 
 def main():
@@ -8,30 +9,25 @@ def main():
 
     for rope_len, func in [(2, p1), (10, p2)]:
         d = {}
-        coords = [[0, 0] for _ in range(rope_len)]
+        coords = [0 for _ in range(rope_len)]
         for instr in lines:
             c, n = instr.split()
-            n = int(n)
-            for j in range(n):
-                coords[0] = [coords[0][0] + DIRS[c][0], coords[0][1] + DIRS[c][1]]
+            for j in range(int(n)):
+                coords[0] += DIRS[c]
                 for i in range(rope_len - 1):
-                    hc = coords[i]
-                    tc = coords[i+1]
-                    if hc[0] == tc[0] or hc[1] == tc[1]:
-                        if abs(hc[0] - tc[0]) > 1:
-                            coords[i+1] = [
-                                tc[0] + (-1 if tc[0] > hc[0] else 1),
-                                tc[1]
-                            ]
-                        elif abs(hc[1] - tc[1]) > 1:
-                            coords[i+1] = [
-                                tc[0],
-                                tc[1] + (-1 if tc[1] > hc[1] else 1)
-                            ]
-                    elif abs(hc[0] - tc[0]) > 1 or abs(hc[1] - tc[1]) > 1:
-                        coords[i+1][0] = tc[0] + (-1 if tc[0] > hc[0] else 1)
-                        coords[i+1][1] = tc[1] + (-1 if tc[1] > hc[1] else 1)
+                    head = coords[i]
+                    tail = coords[i+1]
+                    diff = head - tail
+                    # Check if head and tail are in the same column/row
+                    if 0 in [diff.real, diff.imag]:
+                        if abs(diff.real) > 1:
+                            coords[i+1] += (-1 if tail.real > head.real else 1)
+                        elif abs(diff.imag) > 1:
+                            coords[i+1] += (-1j if tail.imag > head.imag else 1j)
+                    elif abs(diff.real) > 1 or abs(diff.imag) > 1:
+                        coords[i+1] += (-1 if tail.real > head.real else 1)
+                        coords[i+1] += (-1j if tail.imag > head.imag else 1j)
 
-                d[tuple(coords[-1])] = True
+                d[coords[-1]] = True
 
         func(len(d))
