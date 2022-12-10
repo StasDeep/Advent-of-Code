@@ -13,7 +13,7 @@ def main():
 class Computer:
 
     def __init__(self):
-        self.env = {"a": 0, "b": 0, "c": 0, "d": 0, 'x': 1}
+        self.env = {'x': 1}
         self.code = []
         self.line = 0
         self.cycles = 0
@@ -32,14 +32,13 @@ class Computer:
         self.code.extend(lines)
 
     def cyc(self):
-        if (self.cycles - 20) % 40 == 0:
-            self.strengths.append(self.cycles * self.env['x'])
-
         row, col = divmod(self.cycles, 40)
-        print(self.env['x'], row, col)
-        if self.env['x'] -1 <= col <= self.env['x'] + 1:
+        if self.env['x'] - 1 <= col <= self.env['x'] + 1:
             self.d[row][col] = '#'
         self.cycles += 1
+
+        if (self.cycles - 20) % 40 == 0:
+            self.strengths.append(self.cycles * self.env['x'])
 
     def noop(self):
         self.cyc()
