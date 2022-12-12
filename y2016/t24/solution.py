@@ -1,7 +1,7 @@
 from itertools import permutations
 
+from helpers.grid import Grid
 from utils import read, p1, p2
-from y2022.t12.solution import Grid
 
 
 def main():
