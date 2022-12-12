@@ -1,36 +1,25 @@
 from itertools import permutations
-from queue import Queue
-
-import numpy as np
 
 from utils import read, p1, p2
+from y2022.t12.solution import Grid
 
 
 def main():
-    a = np.array([list(x) for x in read()])
+    g = Grid.from_input(read())
 
     coords = {}
     for i in range(10):
-        c = next(zip(*np.where(a == str(i))), None)
+        c = g.find(str(i))
         if c:
             coords[str(i)] = c
 
     distances = {}
     for v1, c1 in coords.items():
-        q = Queue()
-        visited = np.zeros(a.shape).astype(bool)
-        q.put((c1, 0))
-        visited[c1] = True
-        while not q.empty():
-            current_coords, dist = q.get()
-            current_value = a[current_coords]
-            if current_value not in '.#' and current_value != v1:
-                distances[(v1, current_value)] = dist
-            for offset_y, offset_x in [(0, -1), (0, 1), (1, 0), (-1, 0)]:
-                potential_coords = (current_coords[0] + offset_y, current_coords[1] + offset_x)
-                if not visited[potential_coords] and a[potential_coords] != '#':
-                    q.put((potential_coords, dist + 1))
-                    visited[potential_coords] = True
+        v1_distances = g.find_shortest_path(c1, None, lambda _, new_c: g.a[new_c] != '#')
+        for v2, c2 in coords.items():
+            if v1 == v2:
+                continue
+            distances[(v1, v2)] = v1_distances[c2]
 
     total_distances = []
     for perm in permutations(list(v for v in coords if v != '0')):
