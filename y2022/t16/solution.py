@@ -1,4 +1,5 @@
 import re
+from itertools import combinations
 from queue import Queue
 
 from utils import read, p1, p2
@@ -31,8 +32,6 @@ def main():
                 if valve_cand not in visited:
                     q.put((valve_cand, dist + 1))
 
-    print(distances)
-
     dp_memo = {}
     def dp(valve, time, current_opens):
         key = (valve, time, ','.join(sorted(current_opens)))
@@ -53,3 +52,30 @@ def main():
 
     p1(dp('AA', 30, []))
 
+    dp_memo = {}
+    def dp(valve, time, current_opens, dont_count):
+        key = (valve, time, ','.join(sorted(current_opens)), ','.join(sorted(dont_count)))
+        if key not in dp_memo:
+            current_release = sum(v[x]['rate'] for x in current_opens if x not in dont_count)
+            best = 0
+            for valve2 in valves_of_interest:
+                if valve2 not in current_opens and valve2 in valves_of_interest:
+                    t = distances[(valve, valve2)] + 1
+                    if time - t >= 0:
+                        res = t * current_release + dp(valve2, time - t, [valve2] + current_opens, dont_count)
+                        best = max(res, best)
+            if best == 0:
+                best = time * current_release
+            dp_memo[key] = best
+        return dp_memo[key]
+
+    best = 0
+    m = len(valves_of_interest) // 2
+    for l in range(m - 1, m + 1):
+        for comb in combinations(valves_of_interest, l):
+            first = list(comb)
+            second = [x for x in valves_of_interest if x not in first]
+            res = dp('AA', 26, first, first) + dp('AA', 26, second, second)
+            best = max(res, best)
+
+    p2(best)
