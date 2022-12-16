@@ -5,7 +5,7 @@ from queue import Queue
 from utils import read, p1, p2
 
 
-def main():
+def main(t):
     lines = read()
 
     v = {}
@@ -33,26 +33,6 @@ def main():
                     q.put((valve_cand, dist + 1))
 
     dp_memo = {}
-    def dp(valve, time, current_opens):
-        key = (valve, time, ','.join(sorted(current_opens)))
-        if key not in dp_memo:
-            current_release = sum(v[x]['rate'] for x in current_opens)
-            best = 0
-            for valve2 in valves_of_interest:
-                if valve2 not in current_opens and valve2 in valves_of_interest:
-                    t = distances[(valve, valve2)] + 1
-                    if time - t >= 0:
-                        res = t * current_release + dp(valve2, time - t, [valve2] + current_opens)
-                        if res > best:
-                            best = res
-            if best == 0:
-                best = time * current_release
-            dp_memo[key] = best
-        return dp_memo[key]
-
-    p1(dp('AA', 30, []))
-
-    dp_memo = {}
     def dp(valve, time, current_opens, dont_count):
         key = (valve, time, ','.join(sorted(current_opens)), ','.join(sorted(dont_count)))
         if key not in dp_memo:
@@ -68,6 +48,8 @@ def main():
                 best = time * current_release
             dp_memo[key] = best
         return dp_memo[key]
+
+    p1(dp('AA', 30, [], []))
 
     best = 0
     m = len(valves_of_interest) // 2
